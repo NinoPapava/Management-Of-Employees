@@ -20,21 +20,51 @@ const MembersList = () => {
   const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    getMembers().then((data) => {
-      setMembers(data);
-    });
-  }, []);
+  const [firstNameFilter, setFirstNameFilter] = useState<string>('');
+  const [lastNameFilter, setLastNameFilter] = useState<string>('');
+  const [genderFilter, setGenderFilter] = useState<string | undefined>();
 
-  const getMembers = async () => {
+  useEffect(() => {
+    fetchMembers();
+  }, [firstNameFilter, lastNameFilter, genderFilter]);
+
+  const fetchMembers = async () => {
     try {
       const response = await axios.get<Member[]>('https://x8ki-letl-twmt.n7.xano.io/api:tSDGfQun/members');
-      return response.data;
+      let filteredMembers = response.data;
+
+      if (firstNameFilter) {
+        filteredMembers = filteredMembers.filter(member => member.firstname.toLowerCase().includes(firstNameFilter.toLowerCase()));
+      }
+      if (lastNameFilter) {
+        filteredMembers = filteredMembers.filter(member => member.lastname.toLowerCase().includes(lastNameFilter.toLowerCase()));
+      }
+      if (genderFilter) {
+        filteredMembers = filteredMembers.filter(member => member.gender === genderFilter);
+      }
+
+      setMembers(filteredMembers);
     } catch (error) {
       console.error('Error fetching members:', error);
-      return [];
     }
   };
+
+  const handleFilterChange = (filterType: string, value: string | undefined) => {
+    switch (filterType) {
+      case 'firstName':
+        setFirstNameFilter(value || '');
+        break;
+      case 'lastName':
+        setLastNameFilter(value || '');
+        break;
+      case 'gender':
+        setGenderFilter(value);
+        break;
+      default:
+        break;
+    }
+  };
+
 
   const showModal = (member?: Member) => {
     if (member) {
@@ -97,9 +127,29 @@ const MembersList = () => {
 
   return (
     <div>
-      <h1>Members List</h1>
-      <Button type="primary" onClick={() => showModal()}>Add Member</Button>
-
+      <div style={{ marginBottom: '16px' }}>
+        <Input
+          placeholder="Filter by First Name"
+          onChange={(e) => handleFilterChange('firstName', e.target.value)}
+          style={{ width: 200, marginRight: '8px' }}
+        />
+        <Input
+          placeholder="Filter by Last Name"
+          onChange={(e) => handleFilterChange('lastName', e.target.value)}
+          style={{ width: 200, marginRight: '8px' }}
+        />
+        <Select
+          placeholder="Filter by Gender"
+          allowClear
+          onChange={(value) => handleFilterChange('gender', value)}
+          style={{ width: 120, marginRight: '8px' }}
+        >
+          <Select.Option value="male">Male</Select.Option>
+          <Select.Option value="female">Female</Select.Option>
+        </Select>
+        <Button type="primary" onClick={() => showModal()}>Add Member</Button>
+      </div>
+      
       <Modal
         title={editingMemberId ? 'Edit Member' : 'Add New Member'}
         open={isModalVisible}
