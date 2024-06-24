@@ -1,0 +1,27 @@
+<div style={{ marginBottom: '16px' }}>
+        <Input
+          placeholder="Filter by Task Name"
+        
+          style={{ width: 200, marginRight: '8px' }}
+        />
+        <Input
+          placeholder="Filter by Task Status"
+        
+          style={{ width: 200, marginRight: '8px' }}
+        />
+        <Select
+          placeholder="Filter by assigned member"
+          allowClear
+        
+          style={{ width: 120, marginRight: '8px' }}
+        >
+
+          <Checkbox
+          // Filter by Overdue Task
+          
+          />
+          <Select.Option value="male">Male</Select.Option>
+          <Select.Option value="female">Female</Select.Option>
+        </Select>
+        
+      </div>
