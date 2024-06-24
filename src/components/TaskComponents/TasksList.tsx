@@ -103,6 +103,19 @@ const TasksList: React.FC = () => {
     },
   ];
 
+  const handleAddTask = async (values: any) => {
+    try {
+      const response = await axios.post<Task>('https://x8ki-letl-twmt.n7.xano.io/api:tSDGfQun/tasks', values);
+      setTasks([...tasks, response.data]);
+      message.success('Task added successfully');
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      console.error('Error adding task:', error);
+      message.error('Failed to add task');
+    }
+  };
+
 
   return (
     <div>
@@ -118,7 +131,7 @@ const TasksList: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleAddEditTask}
+          onFinish={handleAddTask}
         >
           <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter title' }]}>
             <Input />
