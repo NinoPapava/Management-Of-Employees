@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from 'antd';
-import tasksColumn from '../../columns/tasksColumn'; 
+import tasksColumn from '../../columns/tasksColumn';
+
 interface Task {
   id: number;
   created_at: number;
@@ -17,7 +18,6 @@ interface Task {
 }
 
 const TasksList: React.FC = () => {
-
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -48,27 +48,33 @@ const TasksList: React.FC = () => {
 
   const showModal = (task?: Task) => {
     if (task) {
-      setEditingTaskId(task.id); 
+      setEditingTaskId(task.id);
       form.setFieldsValue({
         title: task.title,
         description: task.description,
-        status: task.status,
         completion_date: task.completion_date,
+        status: task.status,
+        _assigned_member: task._assigned_member,
       });
     } else {
-      form.resetFields(); 
+      form.resetFields();
+      setEditingTaskId(null); 
     }
     setIsModalVisible(true);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    form.resetFields(); 
-    setEditingTaskId(null); 
+    form.resetFields();
+    setEditingTaskId(null);
   };
 
   const handleAddEditTask = async (values: any) => {
-    console.log("Edit logic will be here....")
+    if (editingTaskId) {
+      console.log('Edit logic will be here....');
+    } else {
+      handleAddTask(values);
+    }
   };
 
   const handleDeleteTask = async (taskId: number) => {
@@ -116,7 +122,6 @@ const TasksList: React.FC = () => {
     }
   };
 
-
   return (
     <div>
       <h1>Tasks List</h1>
@@ -124,14 +129,14 @@ const TasksList: React.FC = () => {
 
       <Modal
         title={editingTaskId ? 'Edit Task' : 'Add New Task'}
-        open={isModalVisible}
+        visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleAddTask}
+          onFinish={handleAddEditTask}
         >
           <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter title' }]}>
             <Input />
@@ -158,7 +163,7 @@ const TasksList: React.FC = () => {
 
       <Table dataSource={tasks} columns={columns} rowKey="id" />
     </div>
-  )
-}
+  );
+};
 
-export default TasksList
+export default TasksList;
