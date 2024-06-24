@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from 'antd';
 import tasksColumn from '../../columns/tasksColumn'; 
-interface Task {
+import TaskModal from './TaskModal';
+import TaskTable from './TaskTable';
+export interface Task {
   id: number;
   created_at: number;
   title: string;
@@ -48,15 +50,9 @@ const TasksList: React.FC = () => {
 
   const showModal = (task?: Task) => {
     if (task) {
-      setEditingTaskId(task.id); 
-      form.setFieldsValue({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        completion_date: task.completion_date,
-      });
+      setEditingTaskId(task.id);
     } else {
-      form.resetFields(); 
+      setEditingTaskId(null);
     }
     setIsModalVisible(true);
   };
@@ -66,42 +62,6 @@ const TasksList: React.FC = () => {
     form.resetFields(); 
     setEditingTaskId(null); 
   };
-
-  const handleAddEditTask = async (values: any) => {
-    console.log("Edit logic will be here....")
-  };
-
-  const handleDeleteTask = async (taskId: number) => {
-    try {
-      await axios.delete(`https://x8ki-letl-twmt.n7.xano.io/api:tSDGfQun/tasks/${taskId}`);
-      setTasks(tasks.filter((task) => task.id !== taskId));
-      message.success('Task deleted successfully');
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      message.error('Failed to delete task');
-    }
-  };
-
-  const columns = [
-    ...tasksColumn,
-    {
-      title: 'Action',
-      key: 'action',
-      render: (text: any, record: Task) => (
-        <span>
-          <Button type="link" onClick={() => showModal(record)}>Edit</Button>
-          <Popconfirm
-            title="Are you sure to delete this task?"
-            onConfirm={() => handleDeleteTask(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="link" danger>Delete</Button>
-          </Popconfirm>
-        </span>
-      ),
-    },
-  ];
 
   const handleAddTask = async (values: any) => {
     try {
@@ -114,48 +74,39 @@ const TasksList: React.FC = () => {
       console.error('Error adding task:', error);
       message.error('Failed to add task');
     }
+    form.resetFields();
   };
 
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await axios.delete(`https://x8ki-letl-twmt.n7.xano.io/api:tSDGfQun/tasks/${taskId}`);
+      setTasks(tasks.filter((task) => task.id !== taskId));
+      message.success('Task deleted successfully');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      message.error('Failed to delete task');
+    }
+    form.resetFields();
+  };
 
   return (
     <div>
       <h1>Tasks List</h1>
       <Button type="primary" onClick={() => showModal()}>Add Task</Button>
 
-      <Modal
-        title={editingTaskId ? 'Edit Task' : 'Add New Task'}
-        open={isModalVisible}
+      <TaskModal
+        visible={isModalVisible}
         onCancel={handleCancel}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddTask}
-        >
-          <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Please enter title' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Please enter description' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select status' }]}>
-            <Select>
-              <Select.Option value="ongoing">On going</Select.Option>
-              <Select.Option value="completed">Completed</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="completion_date" label="Completion Date" rules={[{ required: true, message: 'Please select completion date' }]}>
-            <Input type="date" />
-          </Form.Item>
-          <Form.Item>
-            <Button onClick={handleCancel}>Cancel</Button>
-            <Button type="primary" htmlType="submit" style={{ marginLeft: 8 }}>Save</Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+        onFinish={handleAddTask}
+        initialValues={editingTaskId ? tasks.find(task => task.id === editingTaskId) : undefined}
+        isEdit={!!editingTaskId}
+      />
 
-      <Table dataSource={tasks} columns={columns} rowKey="id" />
+      <TaskTable
+        tasks={tasks}
+        onEdit={showModal}
+        onDelete={handleDeleteTask}
+      />
     </div>
   )
 }
