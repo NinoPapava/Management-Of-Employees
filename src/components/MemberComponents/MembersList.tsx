@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from 'antd';
+import { Table, Button, Input, Select, Popconfirm, message } from 'antd';
 import membersColumn from '../../columns/membersColumn.json';
 import MemberTable from './MemberTable';
 import MemberForm from './MemberForm';

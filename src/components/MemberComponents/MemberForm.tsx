@@ -33,7 +33,7 @@ const MemberForm: React.FC<MemberFormProps> = ({ visible, onCancel, onFinish, in
         onFinish={onFinish}
         initialValues={{
           ...initialValues,
-          gender: initialValues?.gender || 'Choose gender..', // Assuming gender dropdown has a default value
+          gender: initialValues?.gender || 'Choose gender..', 
         }}
       >
         <Form.Item name="firstname" label="First Name" rules={[{ required: true, message: 'Please enter first name' }]}>
