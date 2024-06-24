@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from 'antd';
-import tasksColumn from '../../columns/tasksColumn'; 
+import { Button, Form, message } from 'antd';
 import TaskModal from './TaskModal';
 import TaskTable from './TaskTable';
 export interface Task {

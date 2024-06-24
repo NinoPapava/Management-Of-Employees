@@ -1,6 +1,5 @@
 import React from 'react';
-import { Table, Button, Popconfirm, message } from 'antd';
-import axios from 'axios';
+import { Table, Button, Popconfirm } from 'antd';
 import { Task } from './TasksList';
 
 interface TaskTableProps {

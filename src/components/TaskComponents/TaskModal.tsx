@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal, Form, Input, Select, Button } from 'antd';
-import axios from 'axios';
 import { message } from 'antd';
 import { Task } from './TasksList';
 
