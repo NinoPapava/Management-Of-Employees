@@ -78,6 +78,7 @@ const MembersList = () => {
       });
     } else {
       form.resetFields();
+      setEditingMemberId(null);
     }
     setIsModalVisible(true);
   };
