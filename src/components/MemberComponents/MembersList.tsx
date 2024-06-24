@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import { Table, Button, Input, Select, Popconfirm, message } from 'antd';
-import membersColumn from '../../columns/membersColumn.json';
+import { Button, Form, Input, Select, message } from 'antd';
 import MemberTable from './MemberTable';
 import MemberForm from './MemberForm';
 
@@ -23,6 +22,7 @@ const MembersList = () => {
   const [firstNameFilter, setFirstNameFilter] = useState<string>('');
   const [lastNameFilter, setLastNameFilter] = useState<string>('');
   const [genderFilter, setGenderFilter] = useState<string | undefined>();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchMembers();
@@ -69,15 +69,27 @@ const MembersList = () => {
   const showModal = (member?: Member) => {
     setEditingMember(member || null);
     setIsModalVisible(true);
+    form.resetFields();
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingMember(null);
+    form.resetFields();
   };
 
-  const handleAddEditMember = async (values: any) => {
-    console.log("Edit logic will be here....")
+  const handleAddMember = async (values: any) => {
+    try {
+      const response = await axios.post<Member>('https://x8ki-letl-twmt.n7.xano.io/api:tSDGfQun/members', values);
+      const newMember = response.data;
+      setMembers([...members, newMember]);
+      setIsModalVisible(false);
+      message.success('Member added successfully');
+    } catch (error) {
+      console.error('Error adding member:', error);
+      message.error('Failed to add member');
+    }
+    form.resetFields();
   };
 
   const handleDeleteMember = async (memberId: number) => {
@@ -125,7 +137,7 @@ const MembersList = () => {
       <MemberForm
         visible={isModalVisible}
         onCancel={handleCancel}
-        onFinish={handleAddEditMember}
+        onFinish={handleAddMember}
         initialValues={editingMember ? {
           id: editingMember.id,
           firstname: editingMember.firstname,
