@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 import { Table, Button, Modal, Form, Input, Select, Popconfirm, message } from 'antd';
 import membersColumn from '../../columns/membersColumn.json';
+import MemberTable from './MemberTable';
+import MemberForm from './MemberForm';
 
 interface Member {
   id: number;
@@ -17,9 +19,7 @@ const MembersList = () => {
 
   const [members, setMembers] = useState<Member[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
-  const [form] = Form.useForm();
-
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [firstNameFilter, setFirstNameFilter] = useState<string>('');
   const [lastNameFilter, setLastNameFilter] = useState<string>('');
   const [genderFilter, setGenderFilter] = useState<string | undefined>();
@@ -67,26 +67,13 @@ const MembersList = () => {
 
 
   const showModal = (member?: Member) => {
-    if (member) {
-      setEditingMemberId(member.id);
-      form.setFieldsValue({
-        firstname: member.firstname,
-        lastname: member.lastname,
-        gender: member.gender,
-        birthday: member.birthday,
-        salary: member.salary,
-      });
-    } else {
-      form.resetFields();
-      setEditingMemberId(null);
-    }
+    setEditingMember(member || null);
     setIsModalVisible(true);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    form.resetFields();
-    setEditingMemberId(null);
+    setEditingMember(null);
   };
 
   const handleAddEditMember = async (values: any) => {
@@ -103,28 +90,6 @@ const MembersList = () => {
       message.error('Failed to delete member');
     }
   };
-
-  const columns = [
-    ...membersColumn,
-    {
-      title: 'Action',
-      key: 'action',
-      render: (text: any, record: Member) => (
-        <span>
-          <Button type="link" onClick={() => showModal(record)}>Edit</Button>
-          <Popconfirm
-            title="Are you sure to delete this member?"
-            onConfirm={() => handleDeleteMember(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="link" danger>Delete</Button>
-          </Popconfirm>
-        </span>
-      ),
-    },
-  ];
-
 
   return (
     <div>
@@ -151,46 +116,25 @@ const MembersList = () => {
         <Button type="primary" onClick={() => showModal()}>Add Member</Button>
       </div>
 
-      <Modal
-        title={editingMemberId ? 'Edit Member' : 'Add New Member'}
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddEditMember}
-          initialValues={{
-            gender: 'Choose gender..',
-          }}
-        >
-          <Form.Item name="firstname" label="First Name" rules={[{ required: true, message: 'Please enter first name' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="lastname" label="Last Name" rules={[{ required: true, message: 'Please enter last name' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="gender" label="Gender" rules={[{ required: true, message: 'Please select gender' }]}>
-            <Select>
-              <Select.Option value="male">Male</Select.Option>
-              <Select.Option value="female">Female</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="birthday" label="Birthday" rules={[{ required: true, message: 'Please select birthday' }]}>
-            <Input type="date" />
-          </Form.Item>
-          <Form.Item name="salary" label="Salary" rules={[{ required: true, message: 'Please enter salary' }]}>
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item>
-            <Button onClick={handleCancel}>Cancel</Button>
-            <Button type="primary" htmlType="submit" style={{ marginLeft: 8 }}>Save</Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+      <MemberTable
+        members={members}
+        onEdit={showModal}
+        onDelete={handleDeleteMember}
+      />
 
-      <Table dataSource={members} columns={columns} rowKey="id" />
+      <MemberForm
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        onFinish={handleAddEditMember}
+        initialValues={editingMember ? {
+          id: editingMember.id,
+          firstname: editingMember.firstname,
+          lastname: editingMember.lastname,
+          gender: editingMember.gender,
+          birthday: editingMember.birthday,
+          salary: editingMember.salary,
+        } : undefined}
+      />
     </div>
   )
 }
