@@ -90,9 +90,6 @@ const TasksList: React.FC = () => {
 
   return (
     <div>
-      <h1>Tasks List</h1>
-      <Button type="primary" onClick={() => showModal()}>Add Task</Button>
-
       <TaskModal
         visible={isModalVisible}
         onCancel={handleCancel}
@@ -100,12 +97,12 @@ const TasksList: React.FC = () => {
         initialValues={editingTaskId ? tasks.find(task => task.id === editingTaskId) : undefined}
         isEdit={!!editingTaskId}
       />
-
       <TaskTable
         tasks={tasks}
         onEdit={showModal}
         onDelete={handleDeleteTask}
       />
+      <Button type="primary" onClick={() => showModal()}>Add Task</Button>
     </div>
   )
 }
